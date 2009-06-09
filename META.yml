@@ -1,0 +1,23 @@
+--- #YAML:1.0
+name:                Pod-Inherit
+version:             0.01
+abstract:            auto-create pod sections listing inherited methods
+license:             perl
+author:              
+    - James Mastros <james@mastros.biz>
+generated_by:        ExtUtils::MakeMaker version 6.42
+distribution_type:   module
+requires:     
+    MRO::Compat:                   0
+    Path::Class:                   0
+    Pod::Compiler:                 0
+    Sub::Identify:                 0
+    Test::Differences:             0
+    Test::Exception:               0
+    Test::More:                    0
+    Test::NoWarnings:              0
+    Test::Pod:                     0
+    Test::Pod::Coverage:           0
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3
