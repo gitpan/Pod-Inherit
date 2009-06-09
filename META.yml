@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Pod-Inherit
-version:             0.01
+version:             0.02
 abstract:            auto-create pod sections listing inherited methods
 license:             perl
 author:              
