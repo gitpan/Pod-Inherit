@@ -1,4 +1,6 @@
 package SkipUnderscoreBaseClass;
+use warnings;
+use strict;
 
 sub _hide_this {
   'here there be dragons';

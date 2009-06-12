@@ -33,7 +33,7 @@ anattribute
 
 =item L<Moose::Object>
 
-BUILDALL, BUILDARGS, DEMOLISHALL, DESTROY, DOES, does, dump
+(some methods here)
 
 
 =back

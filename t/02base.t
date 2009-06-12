@@ -29,8 +29,10 @@ eval "require Moose";
 if(!$@) {
   my $pi_moose = Pod::Inherit->new({ input_files => [ 't/auxlib/MooseSub.pm' ] });
   $pi_moose->write_pod;
+  my $output = do { local (@ARGV, $/) = "t/auxlib/MooseSub.pod"; <> || 'NO OUTPUT' };
+  $output =~ s/=item L<Moose::Object>\n\n(.+)/=item L<Moose::Object>\n\n(some methods here)/;
   eq_or_diff(
-        do { local (@ARGV, $/) = "t/auxlib/MooseSub.pod"; <> || 'NO OUTPUT' },
+        $output,
         do { local (@ARGV, $/) = "t/auxgolden/MooseSub.pod"; <> || 'NO GOLDEN' },
         "MooseSub - Moose extends, existing POD - out_dir unset");
 #  ok(!-e 't/lib/MooseSub.pod', "Moose extends, existing POD");
