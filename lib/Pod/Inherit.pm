@@ -6,7 +6,7 @@ use MRO::Compat;
 use Sub::Identify;
 use Pod::Compiler;
 use Path::Class;
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 NAME
 
@@ -109,6 +109,13 @@ and documented the methods of some of their base classes further up
 the inheritance chain. This config option lets you tell Pod::Inherit
 where you moved the pod to.
 
+=item force_permissions
+
+ExtUtils::MakeMaker makes directories in blib read-only before we'd
+like to write into them.  If this is set to a true value, we'll catch
+permission denied errors, and try to make the directory writeable,
+write the file, and then set it back to how it was before.
+
 =back
 
 =cut
@@ -189,12 +196,25 @@ sub write_pod {
           next;
         }
         
-        open my $outfh, '>', $output_filename
-          or die "Can't open $output_filename for output: $!";
-        
+        my ($outfh, $oldperm);
+        if (not open $outfh, '>', $output_filename) {
+          if ($!{EACCES} and $self->{force_permissions} ) {
+            unlink $output_filename;
+            $output_filename = Path::Class::File->new($output_filename);
+            $oldperm = (stat($output_filename->dir))[2];
+            chmod $oldperm | 0200, $output_filename->dir 
+              or die "Can't chmod ".$output_filename->dir." (or write into it)";
+            open $outfh, '>', $output_filename or die "Can't open $output_filename for output (even after chmodding it's parent directory): $!";
+          } else {
+            die "Can't open $output_filename for output: $!";
+          }
+        }
         
         print $outfh $allpod;
         close($outfh);
+        if (defined $oldperm) {
+          chmod $oldperm, $output_filename->dir or die sprintf "Can't chmod %s back to 0%o", $output_filename->dir, $oldperm;
+        }
       }
     }
   }
