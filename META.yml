@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Pod-Inherit
-version:            0.05
+version:            0.06
 abstract:           auto-create pod sections listing inherited methods
 author:
     - James Mastros <james@mastros.biz>
