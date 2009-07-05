@@ -6,7 +6,7 @@ use MRO::Compat;
 use Sub::Identify;
 use Pod::Compiler;
 use Path::Class;
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 NAME
 
@@ -236,7 +236,7 @@ The semantics of the C<class_map> argument need to go something like this:
 
 sub create_pod {
   my ($self, $src) = @_;
-  my $docmap = $self->{class_map};
+  my $class_map = $self->{class_map};
   # Canonize src; not only does not doing it produce a minor testing & prettiness problem
   # with the generated-data comment, far more importantly, it will keep require from
   # knowing that t/lib//foo and t/lib/foo are the same library, leading to "redefined"
@@ -261,10 +261,14 @@ sub create_pod {
   } else {
     $require_src = $src;
   }
+  # If $require_src is a Path::Class::File, stringify it now, instead of in
+  # require, because doing it there seems to tickle a Devel::Cover bug.
+  $require_src = "$require_src";
 
-  # require checks the *keys* of %INC.  We want to check the *values*, which are full pathnames.
-  # (Don't ask me why require doesn't.  I certianly don't know.)
-  if(!grep { $_ eq $src } values %INC) {  
+  # require checks the *keys* of %INC.  We want to check the *values*,
+  # which are full pathnames.  (Don't ask me why require doesn't.  I
+  # certianly don't know.)
+  if(!grep { $_ eq $src } values %INC) { 
     if (!eval {require $require_src; 1;}) {
       warn "Couldn't load file $src ($require_src): $@";
       return;
@@ -310,6 +314,7 @@ sub create_pod {
     if (not exists $local_config->{skip_underscored}) {
       $local_config->{skip_underscored} = $self->{skip_underscored};
     }
+    $local_config->{class_map} ||= $class_map;
 
     #print "post-defaulting local config: \n";
     #Dump $local_config;
@@ -375,13 +380,14 @@ sub create_pod {
 #      push @derived, { $parent_class => $nice_name };
 
       my $doc_parent_class = $parent_class;
-      if ($docmap->{$parent_class}) {
-        $doc_parent_class = $docmap->{$parent_class};
+      if ($local_config->{class_map}->{$parent_class}) {
+        $doc_parent_class = $local_config->{class_map}->{$parent_class};
       }
       push @{$tt_stash->{methods}{$doc_parent_class}}, $nice_name;
       if (!grep {$_ eq $doc_parent_class} @isa_flattened) {
         # Hm, is there a better way of doing this?
-        @isa_flattened = map {$_ eq $doc_parent_class ? ($doc_parent_class, $_) : $_} @isa_flattened;
+        # We want to insert $doc_parent_class just before $parent_class in @isa_flattened.
+        @isa_flattened = map {$_ eq $parent_class ? ($doc_parent_class, $_) : $_} @isa_flattened;
       }
     }
   }
@@ -412,7 +418,6 @@ __END_POD__
 
   $new_pod .= "=back\n\n";
 
-  $tt_stash->{docmap} = $docmap;
   # Rather annoyingly, we can't just stick a bunch of POD already marked up into a Pod::Compile; it needs an object.
   $new_pod = bless {_text => $new_pod}, 'Pod::superliteral';
 
