@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Pod-Inherit
-version:            0.06
+version:            0.07
 abstract:           auto-create pod sections listing inherited methods
 author:
     - James Mastros <james@mastros.biz>
@@ -11,6 +11,7 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
+    Module::CoreList:     0
     MRO::Compat:          0
     Path::Class:          0
     Pod::Compiler:        0
@@ -21,6 +22,7 @@ requires:
     Test::NoWarnings:     0
     Test::Pod:            0
     Test::Pod::Coverage:  0
+    Test::Warn:           0
 no_index:
     directory:
         - t
