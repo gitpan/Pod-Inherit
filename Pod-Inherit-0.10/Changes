@@ -1,3 +1,8 @@
+0.10
+ - $paperbag->insert($head) release
+ - Hopefully, make Test::Kwalitee shut up about the false positive where it claims that I do not test for pod coverage.  (They're real, and they're amazing.)
+ - Stop trying to use DBIx::Class::Schema as a test case, because that means I have to depend on dbic, or ship most of it.
+
 0.09
  - Stop outputting the inherited methods section multiple times.
 

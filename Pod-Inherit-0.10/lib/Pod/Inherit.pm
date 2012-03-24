@@ -25,7 +25,7 @@ sub Pod::POM::Node::error {
 
 use Path::Class;
 use Scalar::Util 'refaddr';
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 =head1 NAME
 
@@ -36,7 +36,7 @@ Pod::Inherit - auto-create pod sections listing inherited methods
   use Pod::Inherit;
 
   my $config = {
-    out_dir => "/usr/src/perl/dbix-class/bast/DBIx-Class/0.08/trunk/doc,
+    out_dir => "/usr/src/perl/dbix-class/bast/DBIx-Class/0.08/trunk/doc",
     input_files => ['/usr/src/perl/dbix-class/bast/DBIx-Class/0.08/trunk/lib/'],
     skip_underscored => 1,
     class_map =>
