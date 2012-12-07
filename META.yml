@@ -6,6 +6,7 @@ build_requires:
   ExtUtils::MakeMaker: 6.59
   Module::CoreList: 0
   Test::Differences: 0
+  Test::EOL: 0
   Test::Exception: 0
   Test::More: 0
   Test::NoWarnings: 0
@@ -33,7 +34,7 @@ requires:
   Path::Class: 0
   Pod::POM: 0
   Sub::Identify: 0
-  perl: 5.6.0
+  perl: 5.10.1
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.14
+version: 0.15
