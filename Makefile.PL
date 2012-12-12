@@ -12,7 +12,7 @@ use strict;
 
 # Define metadata
 name           'Pod-Inherit';
-perl_version   '5.10.1';
+perl_version   '5.008001';
 all_from       'lib/Pod/Inherit.pm';
 
 # Specific dependencies
@@ -34,10 +34,6 @@ test_requires(
   'Test::Pod'           => 0,
   'Test::Warn'          => 0,
   'Test::EOL'           => 0,
-);
-
-recommends(
-  'Pod::Tree' => 0,
 );
 
 WriteAll;

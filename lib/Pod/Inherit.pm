@@ -1,6 +1,28 @@
+# *sigh* Pod::Tree does this with a simple get_deep_text method...
+
+### TODO: This should probably be its own distro ###
+package Pod::POM::View::TextStrip;
+
+use parent 'Pod::POM::View::Text';
+
+sub view_seq_bold   { $_[1] }
+sub view_seq_italic { $_[1] }
+sub view_seq_code   { $_[1] }
+sub view_seq_file   { $_[1] }
+sub view_verbatim   { $_[1] }
+sub view_seq_link   {
+   my ($self, $link) = @_;
+   $link =~ s/^.*?\|//;
+   return $link;
+}
+
+1;
+
 package Pod::Inherit;
+
 use warnings;
 use strict;
+
 use MRO::Compat;
 use Sub::Identify;
 use Pod::POM;
@@ -22,7 +44,7 @@ sub Pod::POM::Node::error {
 
 use Path::Class;
 use Scalar::Util 'refaddr';
-our $VERSION = '0.16';
+our $VERSION = '0.90';
 
 =head1 NAME
 
@@ -281,8 +303,6 @@ This option typically only makes sense if C<method_format> is a
 link, but it can be used to automatically remove undocumented
 methods or present them in a different manner.
 
-This feature requires L<Pod::Tree> to be installed.
-
 =head4 debug
 
 =over
@@ -371,7 +391,7 @@ sub new {
 
 =item B<Arguments:> none
 
-=item B<Return Value:> none
+=item B<Return Value:> 1 on success
 
 =back
 
@@ -458,6 +478,8 @@ sub write_pod {
       }
     }
   }
+
+  return 1;
 }
 
 =pod
@@ -604,7 +626,8 @@ sub create_pod {
       my $subref = $classname->can($globname);
       if ($force_inherits && !$subref) {  # forced inherits may be the ones with the methods...
         foreach my $class (@$force_inherits) {
-          $subref //= $class->can($globname);
+          $subref = $class->can($globname)
+            unless defined $subref;
         }
       }
       # Must not be a method, but some other strange beastie.
@@ -921,24 +944,27 @@ sub _check_pod_sections {
     return 0
   ;
 
-  $self->{pod_sections}{$classname} = {};
+  my $hash = $self->{pod_sections}{$classname} = {};
 
-  my $p = Pod::Tree->new;
-  $p->load_file($src);
-  $p->walk(sub {
-    if ($_[0]->is_command and grep { $_[0]->$_ } ("is_c_item", map { "is_c_head$_" } 1..4) ) {
-      my $hdr = $_[0]->get_deep_text;
-      $hdr =~ s/^\s+|\s+$//g;
-      $self->{pod_sections}{$classname}{$hdr} = 1;
-    }
-    1;
-  });
+  my $p = Pod::POM->new;
+  my $pom = $p->parse_file("$src") || die $p->error();  # again, Pod::POM has issues with Path::Class objects
+  $self->_find_pod_headers($pom, $hash);
+
   if ($DEBUG) {
-    print "  Found ".scalar(keys %{$self->{pod_sections}{$classname}})." POD sections in $classname:\n";
-    print "    ".join(', ', keys %{$self->{pod_sections}{$classname}})."\n";
+    print "  Found ".scalar(keys %$hash)." POD sections in $classname:\n";
+    print "    ".join(', ', keys %$hash)."\n";
   }
 
   return 1;
+}
+
+sub _find_pod_headers {
+  my ($self, $top, $hash) = @_;
+
+  $hash->{ $top->title->present('Pod::POM::View::TextStrip') } = 1 if ($top->type =~ /head/i);
+  foreach my $item ($top->content) {
+    $self->_find_pod_headers($item, $hash);
+  }
 }
 
 sub _is_ours {

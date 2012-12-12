@@ -27,8 +27,6 @@ no_index:
   directory:
     - inc
     - t
-recommends:
-  Pod::Tree: 0
 requires:
   Class::Load: 0
   List::AllUtils: 0
@@ -36,7 +34,7 @@ requires:
   Path::Class: 0
   Pod::POM: 0
   Sub::Identify: 0
-  perl: 5.10.1
+  perl: 5.8.1
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.16
+version: 0.90
